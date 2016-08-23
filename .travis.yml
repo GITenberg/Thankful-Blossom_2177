@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: F+Xh+vcsnNcUiwNdKWH0DrUZvEnptqF0Pfo/CsagGEeXnBvF5eCa0nDKZ7/r0tvjUqkTrcrtyUHLVe+6TTamXMinyzNinkna7Sqqy6FiydGKqB9eQnbudkGB+y2JcTc3rTNkb50FCNSQROqkRJWAnsE1j2zCsr4eH3RrnQ71HONu1GcF8jhH/Nw9+IxTsYL0atYkq5ThxPKBXVzbA0n1GarNqVsfXPCEETeQSokfk0rsWW4lJbDrIGrSZmfWcstjKlgBZ+ksj+ysKWLXDjakS/hnJgqHKXz+cb+3UHa4IkMwO5aD9VZs5gH6JHJ1TRUazU/hbL4nVhRv5n14IUIqbLbkB2IkOMfEHO3u5caqDm5V79sx79YWB6mkS/hLaab+WkQqQjinW1ftC4Fmj91b4Zh8EBWYzpwN7pduV4Xu0kzN8cHfcA/FzBvOdf5HZCQyWBEQ/YCQlInAyyOGE7+tc1Hxv3yCh0Vj0Q/E5QU0JpTyTSZ7gYv8ps3THvVddH67v20JfGk0jnsjXT+IG2LVCuLU3EJ+BOC1otnINw2vOUkgXy7QGmHfZg6LwUOwDQRgGXowEQBY7CZSM8DN/Boh7U5LYY6SMNqVIxWV6KZzELrMlhGtS2A4vCOQsZ/TK2Pm/ZFJl/svpEJ+9bwCR4fhpNE1lW6FBz76V5RDXQPzh/o=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Thankful-Blossom_2177
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
